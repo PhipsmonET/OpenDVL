@@ -1,20 +1,20 @@
 # ☤ Firmware di OpenDVL (STM32H7 - C/C++)
 
-Questo modulo racchiude il codice sorgente, l'architettura software e il sistema di build del firmware per la scheda di controllo dell'OpenDVL, basato su microcontrollore **STM32H7** (ARM Cortex-M7).
+Questo modulo racchiude il codice sorgente, l'architettura software e il sistema di build del firmware per la scheda di controllo dell'OpenDVL, basata su microcontrollore **STM32H7 (Nucleo Motherboard)** con shield di condizionamento acustico.
 
 ---
 
-## 📐 Architettura del Software
+## 📐 Architettura del Software e Periferiche
 
-Il firmware è progettato con un approccio modulare e multi-thread per garantire il determinismo temporale durante le fasi di trasmissione acustica e acquisizione ad alta velocità.
+Il firmware sfrutta le prestazioni elevate del core ARM Cortex-M7 a 480 MHz per gestire l'acquisizione parallela dei due bus digitali dell'ADC esterno e calcolare gli algoritmi DSP in tempo reale.
 
 ```mermaid
 graph TD
-    subgraph DRIVER LAYER (HAL/LL)
-        TIM[Timers PWM TX]
-        ADC[ADC DMA RX]
-        UART[UART / SPI / I2C]
-        ETH[Ethernet MAC]
+    subgraph PERIPHERAL CAPTURE LAYER
+        TIM2[Timer di Trigger 10-20 MHz] -->|DMA Hardware Request| DMA[Double DMA Channel]
+        GPIO_D[GPIOD Bus Parallelo Ch A] -->|12-bit Read| DMA
+        GPIO_E[GPIOE Bus Parallelo Ch B] -->|12-bit Read| DMA
+        DMA -->|Circular Double Buffer| RAM[RAM D1 Section]
     end
 
     subgraph SYSTEM SERVICES
@@ -23,56 +23,77 @@ graph TD
     end
 
     subgraph APPLICATION MODULES
-        TX[Acoustic Transmitter]
-        RX[Acoustic Receiver]
-        DSP[DSP Engine]
+        TX[Acoustic TX Timer TIM1 - 1 MHz]
+        TVG[DAC Controller - AD600 Time-Varied Gain]
+        RX[Acoustic RX Buffer Demultiplexer]
+        DSP[DSP Engine: IQ Demod, FFT / Autocorrelation]
         CAL[Speed of Sound Calibrator]
-        NAV[Navigation Engine Janus Matrix]
-        TEL[Telemetry RS485/Ethernet]
+        NAV[Navigation Engine: 2-Beam 2D Matrix]
+        TEL[Telemetry RS485/Ethernet NMEA]
     end
 
-    TIM --> TX
-    ADC --> RX
-    RX -->|Buffer Acustico| DSP
+    RAM --> RX
+    RX --> DSP
     CMSIS --> DSP
     CAL --> NAV
     DSP -->|Beam Velocities| NAV
-    NAV -->|Vector Velocity| TEL
-    TEL --> UART
-    TEL --> ETH
-    OS -->|Task Scheduling & Sync| APPLICATION_MODULES
+    NAV -->|2D Velocity Vector Vx, Vz| TEL
 ```
 
 ---
 
 ## ⚡ Pipeline di Processing Acustico (DSP Engine)
 
-Il calcolo della velocità Doppler si basa sulla misura dello slittamento di frequenza dell'eco ricevuta su ciascuno dei 4 canali risonanti dei trasduttori. Il flusso di elaborazione per ciascun *ping* segue questi passaggi:
+Il sistema a due trasduttori da 1 MHz è configurato per misurare la velocità bidimensionale (velocità orizzontale di avanzamento e velocità verticale di discesa/salita). Ciascun *ping acustico* segue questo flusso di elaborazione:
 
-1. **Trasmissione (Pulse Generation)**:
-   - Viene generato un *burst* acustico della durata di $2 - 10\text{ ms}$.
-   - Tipologia di impulso: **CW (Continuous Wave)** a singola frequenza fissa (es. $300\text{ kHz}$) oppure **FM (Frequency Modulation / Chirp)** con sweep lineare di frequenza (es. $280\text{ kHz} - 320\text{ kHz}$) per consentire la compressione dell'impulso (aumentando la risoluzione spaziale e la tolleranza al rumore).
-2. **Finestratura e Acquisizione**:
-   - Dopo un tempo di blanking (ritardo necessario affinché cessi la risonanza diretta del trasmettitore, evitando la misura del "cross-talk"), l'ADC a 16-bit della MCU acquisisce in modo sincrono tramite DMA i segnali dai 4 canali AFE.
-   - Il campionamento avviene tipicamente a $2\text{ Msps}$ per canale.
-3. **Filtrazione Digitale e Demodulazione IQ**:
-   - I dati acquisiti passano attraverso un filtro passabanda digitale FIR o IIR implementato con le funzioni ottimizzate della libreria `CMSIS-DSP`.
-   - Il segnale viene demodulato in fase e quadratura (I/Q) per traslare la frequenza centrale in banda base, riducendo drasticamente il numero di campioni da processare.
-4. **Algoritmo di Stima della Frequenza**:
-   - **Metodo Spettrale (FFT)**: Calcolo della FFT a 1024 o 2048 punti su finestre temporali scorrevoli dell'eco per individuare il picco spettrale che corrisponde allo spostamento Doppler.
-   - **Autocorrelazione (Algoritmo di Rummler)**: Calcolo dello sfasamento medio tra campioni consecutivi del segnale IQ. È estremamente efficiente dal punto di vista computazionale ed è ampiamente utilizzato nei sonar industriali.
-   - **Cross-Correlazione (per impulsi Chirp/FM)**: Correlazione del segnale ricevuto con la replica dell'impulso trasmesso. Questo metodo (detto *Matched Filter*) permette una precisione sub-centimetrica nella misura della velocità anche con rapporti segnale/rumore molto bassi ($SNR < 0\text{ dB}$).
-5. **Compensazione della Velocità del Suon ($c$)**:
-   - La velocità calcolata dipende direttamente dalla velocità di propagazione del suono nell'acqua.
-   - Il firmware acquisisce in tempo reale la temperatura $T$ (tramite sensore analogico/I2C ad alta precisione) e la pressione $P$.
-   - Utilizzando il valore di salinità stimato o impostato dall'utente ($S$), viene calcolata la velocità del suono tramite la formula di **Clay-Medwin**:
-     $$c(T, S, z) = 1449.2 + 4.6T - 0.055T^2 + 0.00029T^3 + (1.34 - 0.01T)(S - 35) + 0.016z$$
-     *(dove $z$ è la profondità derivata dal sensore di pressione)*.
-6. **Trasformazione Geometrica (Janus Matrix)**:
-   - Le velocità misurate lungo i 4 assi dei trasduttori ($b_1, b_2, b_3, b_4$) vengono convertite nel sistema di coordinate del veicolo ($V_x, V_y, V_z$ - avanti/indietro, destra/sinistra, salita/discesa) tramite la matrice di trasformazione geometrica basata sull'inclinazione $\alpha = 30^{\circ}$:
-     $$V_x = \frac{c}{4\sin\alpha} \cdot \frac{\Delta f_1 - \Delta f_2}{f_0}$$
-     $$V_y = \frac{c}{4\sin\alpha} \cdot \frac{\Delta f_3 - \Delta f_4}{f_0}$$
-     $$V_z = \frac{c}{4\cos\alpha} \cdot \frac{\Delta f_1 + \Delta f_2 + \Delta f_3 + \Delta f_4}{f_0}$$
+### 1. Generazione del Ping Acustico (TX - 1 MHz)
+- Il timer avanzato **TIM1** viene configurato per generare un burst PWM a **1 MHz** (durata tipica di 1-3 ms, circa 1000-3000 cicli acustici).
+- Il segnale PWM pilota il driver di gate **MAX4427CPA+** che eccita rapidamente i MOSFET di potenza per inviare l'energia acustica in acqua.
+- **TVG Control**: In contemporanea al termine della trasmissione, un canale **DAC** della MCU avvia una rampa di tensione analogica inviata al pin di controllo del guadagno del chip **AD600JNZ** (V_G, da -0.625 V a +0.625 V). Questo alza progressivamente il guadagno dell'AFE da 0 dB a 40 dB per compensare l'assorbimento dell'acqua a 1 MHz, che è notevolmente superiore rispetto alle basse frequenze.
+
+### 2. Acquisizione parallela ad alta velocità via DMA
+- I due chip **AD9226** forniscono in parallelo dati a 12-bit.
+- Per evitare il collo di bottiglia della CPU, configuriamo il timer **TIM2** per scattare a una frequenza di campionamento costante (es. **10 MHz** o **20 MHz**).
+- Ciascun impulso di clock del timer avvia una richiesta DMA (Direct Memory Access) che campiona simultaneamente:
+  - I 12 bit di **GPIOD->IDR** (collegati all'ADC Ch A - Trasduttore 1)
+  - I 12 bit di **GPIOE->IDR** (collegati all'ADC Ch B - Trasduttore 2)
+- Il DMA deposita i dati in un buffer circolare allocato nella velocissima memoria RAM D1 della MCU STM32H7.
+
+### 3. Filtrazione Digitale e Demodulazione IQ
+- Il segnale digitale a 1 MHz viene filtrato con un filtro passa-banda digitale FIR passa-basso/banda centrato a 1 MHz (sfruttando la libreria `CMSIS-DSP`).
+- Si effettua la demodulazione IQ moltiplicando digitalmente il segnale acquisito per una sinusoide e una cosinusoide locali a 1 MHz, estraendo le componenti in fase (I) e quadratura (Q) in banda base. Questo riduce la frequenza effettiva dei campioni da elaborare.
+
+### 4. Algoritmo di Stima della Frequenza Doppler
+- Si applica l'algoritmo di **Autocorrelazione (metodo di Rummler)** sul segnale IQ in banda base. Questo metodo stima lo sfasamento medio tra campioni successivi ed è incredibilmente rapido ed efficiente per l'elaborazione in tempo reale sulla MCU.
+- In alternativa, si effettua una FFT a 1024 punti sui dati per localizzare lo spostamento del picco di frequenza rispetto alla portante di 1 MHz.
+
+### 5. Compensazione della Velocità del Suono (c)
+La velocità di propagazione del suono in acqua varia principalmente con la temperatura. Il firmware la compensa in tempo reale tramite l'equazione di **Clay-Medwin**:
+
+```text
+c = 1449.2 + 4.6 * T - 0.055 * T^2 + 0.00029 * T^3 + (1.34 - 0.01 * T) * (S - 35) + 0.016 * z
+```
+
+Dove:
+- `T` è la temperatura misurata (in °C).
+- `S` è la salinità dell'acqua (tipicamente impostata a 35 ppt per acqua marina o 0 ppt per acqua dolce).
+- `z` è la profondità di lavoro calcolata in base al sensore di pressione (in metri).
+
+### 6. Trasformazione Geometrica 2D
+Nel nostro sistema bidimensionale a 2 fasci acustici orientati ad un angolo di inclinazione alpha (es. 30 gradi) rispetto alla verticale:
+- Il trasduttore 1 (Beam 1) è inclinato in avanti di +alpha gradi.
+- Il trasduttore 2 (Beam 2) è inclinato all'indietro di -alpha gradi.
+
+Le velocità lineari lungo i due fasci (b1, b2) stimate tramite i rispettivi spostamenti Doppler (df1, df2) vengono convertite nel vettore di velocità del veicolo:
+- **Velocità Orizzontale (avanzamento, Vx)**:
+  ```text
+  Vx = c * (df1 - df2) / (4 * f0 * sin(alpha))
+  ```
+- **Velocità Verticale (discesa/salita, Vz)**:
+  ```text
+  Vz = c * (df1 + df2) / (4 * f0 * cos(alpha))
+  ```
+*(dove f0 = 1,000,000 Hz è la frequenza nominale del trasduttore).*
 
 ---
 
@@ -81,41 +102,30 @@ Il calcolo della velocità Doppler si basa sulla misura dello slittamento di fre
 - `CMakeLists.txt`: Configurazione di build principale.
 - `toolchain-arm.cmake`: File di configurazione per la toolchain cross-compiler `arm-none-eabi`.
 - `Core/`:
-  - `Src/main.c`: Inizializzazione hardware (Clocks, GPIO, DMA, Periferiche).
-  - `Src/stm32h7xx_it.c`: Gestori delle interruzioni (Interrupt Service Routines) per ADC DMA e Timer di Trigger.
+  - `Src/main.c`: Inizializzazione della scheda Nucleo H7 (Clocks a 480 MHz, GPIO DMA per AD9226, DAC per AD600).
+  - `Src/stm32h7xx_it.c`: Gestori delle interruzioni di DMA e TIM.
 - `App/`:
-  - `Src/acoustic_tx.c`: Gestione della generazione del ping acustico.
-  - `Src/acoustic_rx.c`: Gestione del ring buffer del DMA di ricezione.
-  - `Src/dsp_engine.c`: Algoritmi FFT, Matched Filter e calcolo dello spostamento Doppler.
-  - `Src/navigation.c`: Matrice Janus, compensazione velocità del suono.
-  - `Src/telemetry.c`: Formattazione stringhe NMEA e protocollo binario PD0.
-- `Drivers/`: Driver del produttore (STM32H7xx_HAL_Driver) e sorgenti CMSIS Core e DSP.
+  - `Src/acoustic_tx.c`: Gestione del trigger a 1 MHz tramite TIM1.
+  - `Src/acoustic_rx.c`: Gestione del DMA parallelo per GPIOD e GPIOE.
+  - `Src/dsp_engine.c`: Demodulazione IQ, filtri FIR, calcolo dello spostamento Doppler a 1 MHz.
+  - `Src/navigation.c`: Conversione geometrica 2D (Vx, Vz) e calcolo della velocità del suono.
+  - `Src/telemetry.c`: Formattazione pacchetti seriali NMEA.
 
 ---
 
 ## 🛠️ Istruzioni per la Compilazione
 
 ### Requisiti
-- **GCC Toolchain per ARM**: `arm-none-eabi-gcc` deve essere installato e presente nel PATH del sistema.
+- **GCC Toolchain per ARM**: `arm-none-eabi-gcc` nel PATH del sistema.
 - **CMake**: Versione 3.20 o superiore.
-- **Build Generator**: `make` (Linux/macOS/Windows via MinGW) oppure `ninja`.
+- **Ninja** o **Make**.
 
-### Procedura di Build (da Terminale/PowerShell)
+### Procedura di Build
 ```bash
-# Entra nella cartella firmware
 cd firmware
-
-# Crea la directory di build
 mkdir build
 cd build
-
-# Genera i file di build con CMake puntando alla toolchain ARM
 cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-arm.cmake -G "Unix Makefiles" ..
-
-# Avvia la compilazione
 make -j4
 ```
-
-Al termine del processo, nella cartella `build/` verranno generati i file:
-- `OpenDVL_Firmware.elf`: File binario contenente i simboli di debug per il programmatore (ST-Link, J-Link).
-- `OpenDVL_Firmware.hex` / `OpenDVL_Firmware.bin`: Immagini pronte da flashare sul microcontrollore.
+I file compilati finali (`.elf`, `.hex`, `.bin`) verranno generati nella cartella `build/`.

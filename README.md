@@ -1,13 +1,13 @@
 # 🌊 OpenDVL: Open Source Doppler Velocity Log
 
 [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-emerald.svg?style=for-the-badge)]()
-[![Hardware: KiCad 10](https://img.shields.io/badge/Hardware-KiCad%20v10.0-blue.svg?style=for-the-badge)]()
-[![Firmware: STM32H7](https://img.shields.io/badge/Firmware-STM32H7%20(ARM%20Cortex--M7)-red.svg?style=for-the-badge)]()
+[![Hardware: KiCad 10 Shield](https://img.shields.io/badge/Hardware-KiCad%20v10.0%20Shield-blue.svg?style=for-the-badge)]()
+[![Firmware: STM32H7 Nucleo](https://img.shields.io/badge/Firmware-STM32H7%20Nucleo-red.svg?style=for-the-badge)]()
 [![Mechanical: Fusion 360](https://img.shields.io/badge/Mechanical-Autodesk%20Fusion%20360-orange.svg?style=for-the-badge)]()
 
-Benvenuto in **OpenDVL**, un progetto open-source e ad alte prestazioni per la realizzazione di un **Doppler Velocity Log (DVL)** dedicato alla navigazione di veicoli subacquei autonomi (AUV) e filoguidati (ROV).
+Benvenuto in **OpenDVL**, un progetto open-source e ad alte prestazioni per la realizzazione di un **Doppler Velocity Log (DVL)** bidimensionale dedicato alla navigazione di piccoli veicoli subacquei autonomi (AUV) e filoguidati (ROV).
 
-Il DVL misura la velocità tridimensionale del veicolo rispetto al fondale marino trasmettendo impulsi acustici (pings) attraverso un array di 4 trasduttori piezoelettrici disposti in configurazione **Janus** (orientati a 30° rispetto alla verticale) e calcolando lo spostamento di frequenza (effetto Doppler) dell'eco di ritorno.
+Il sistema è basato su una scheda madre **STM32H7 Nucleo**, abbinata a un **HAT/Shield elettronico custom** e a due trasduttori piezoelettrici operanti a **1 MHz** inclinati a 30 gradi rispetto alla verticale. Questo permette di calcolare la velocità bidimensionale del veicolo (avanzamento e discesa/salita) misurando lo spostamento di frequenza (effetto Doppler) dell'eco di ritorno dal fondale.
 
 ---
 
@@ -18,24 +18,26 @@ Il progetto si articola su tre pilastri ingegneristici principali, integrati in 
 ```mermaid
 graph TD
     subgraph MECCANICA (Fusion 360)
-        A[Transducer Janus Mount] -->|Alloggiamento| B[Chassis Cilindrico IP68]
+        A[Dual Transducer Mount 1 MHz] -->|Alloggiamento| B[Chassis Cilindrico IP68]
         C[Sezione Doppia Tenuta O-Ring] -->|Impermeabilizzazione| B
-        D[Wet-Mateable Connectors] -->|Passacavi| B
+        D[Wet-Mateable Connector] -->|Passacavi| B
     end
 
-    subgraph ELETTRONICA (KiCad 10)
-        E[Alimentazione & Filtri LDO] --> F[MCU STM32H7]
-        G[Analog Front-End AFE] -->|Campionamento ADC| F
-        H[Transmitter High-Voltage Pulser] -->|Eccitazione Piezo| G
-        F -->|Segnali di Controllo & DAC| H
-        F -->|RS232 / RS485 / Ethernet| I[Interfaccia ROV/AUV]
+    subgraph ELETTRONICA (KiCad 10 Shield)
+        E[Alimentazione Duale +5V/-5V via LTC1144] --> G[Active Gain AD600JNZ]
+        G -->|Time-Varied Gain Control| H[DAC STM32H7]
+        I[TX H-Bridge + MAX4427CPA+] -->|Impulso 1 MHz| Piezo[2x Piezo 1 MHz]
+        Piezo -->|Eco di Ritorno| TR[T/R Switch]
+        TR --> G
+        G -->|Segnale Condizionato| ADC[Dual AD9226 Parallel ADC]
     end
 
-    subgraph FIRMWARE (STM32H7 C/C++)
-        F --> J[Driver Transducer Control & Timing]
-        F --> K[Acoustic Processing Engine FFT/Cross-Correlation]
-        F --> L[Speed of Sound Compensation Temp/Salinity]
-        F --> M[Serial/Ethernet Protocol Handler PD0/NMEA]
+    subgraph FIRMWARE (STM32H7 C/C++ on Nucleo)
+        ADC -->|2x 12-bit Bus Parallelo D0-D11| F[Nucleo H7 GPIO D & E]
+        F -->|DMA Capture triggered by TIM2| J[IQ Demodulator & DSP Engine]
+        J -->|Autocorrelation / FFT Doppler Shift| K[2D Janus Navigation Matrix]
+        L[Speed of Sound Compensator Temp/I2C] --> K
+        K -->|Velocity Vector Vx, Vz| M[RS485 NMEA Telemetry]
     end
 ```
 
@@ -51,27 +53,25 @@ OpenDVL/
 ├── README.md                # Questo file (Overview e Guida Generale)
 │
 ├── docs/                    # Documentazione di sistema e specifiche tecniche
-│   ├── pinout.md            # Mappatura completa dei pin della MCU STM32H7
-│   └── architecture.md      # Descrizione approfondita del processing acustico
+│   └── pinout.md            # Mappatura dei pin Morpho della Nucleo per lo shield
 │
-├── electronics/             # Progetto Elettronico (KiCad v10.0)
-│   ├── README.md            # Specifiche AFE, TX Pulser, alimentazione e BOM
-│   ├── OpenDVL_PCB/         # File di progetto schematico e PCB layout (.kicad_sch, .kicad_pcb)
+├── electronics/             # Progetto Elettronico (KiCad v10.0 Shield)
+│   ├── README.md            # Specifiche AFE (AD600), TX (MAX4427), Inverter (LTC1144), ADC (AD9226)
+│   ├── OpenDVL_PCB/         # File di progetto schematico e PCB layout
 │   └── libs/                # Librerie locali del progetto (Simboli, Footprint, Modelli 3D)
 │
 ├── mechanics/               # Progetto Meccanico (Autodesk Fusion 360)
-│   ├── README.md            # Linee guida di tenuta a pressione, tolleranze e assemblaggio
+│   ├── README.md            # Linee guida di tenuta a pressione, tolleranze e alloggiamento piezo 1 MHz
 │   ├── exports/             # Modelli CAD esportati (STEP, IGES, STL per stampa 3D)
 │   └── drawings/            # Tavole tecniche 2D in formato PDF/DXF
 │
 └── firmware/                # Firmware della MCU (STM32H7 - C/C++)
-    ├── README.md            # Architettura software, DSP Pipeline, RTOS e istruzioni di build
-    ├── CMakeLists.txt       # File di configurazione CMake per cross-compilazione ARM
-    ├── toolchain-arm.cmake  # File di configurazione della toolchain GCC-ARM
+    ├── README.md            # Architettura, DMA parallelo ADC, DSP Pipeline (Rummler), istruzioni
+    ├── CMakeLists.txt       # File di configurazione CMake per compilazione ARM GCC
+    ├── toolchain-arm.cmake  # File di configurazione della toolchain ARM
     ├── Core/                # Codice sorgente principale (Inc, Src, Startup)
-    ├── Drivers/             # HAL STM32H7, CMSIS e librerie esterne
-    ├── App/                 # Logica applicativa (DSP Engine, Protocolli, Calibrazione)
-    └── Middlewares/         # Librerie middleware (STM32 DSP Library, FreeRTOS)
+    ├── App/                 # Logica applicativa (DSP Engine, Protocollo NMEA, Calibrazione)
+    └── Drivers/             # HAL STM32H7, CMSIS e librerie esterne
 ```
 
 ---
@@ -79,40 +79,38 @@ OpenDVL/
 ## 📐 Specifiche dei Sotto-Sistemi
 
 ### 1. Elettronica (`/electronics`)
-Progettata interamente in **KiCad 10**, la scheda di controllo si occupa di:
-- **Processing Unit**: STM32H7 (Core ARM Cortex-M7 a 480 MHz, FPU a doppia precisione e istruzioni DSP hardware).
-- **Trasmissione**: Generatore di impulsi ad alta tensione regolabile (20V - 100V) per pilotare i trasduttori piezoelettrici (tipicamente a 300 kHz - 1 MHz).
-- **Ricezione (Analog Front-End)**: Amplificatore a guadagno programmabile (PGA), filtro passa-banda attivo di ordine elevato e circuito di protezione da sovratensione (T/R Switch) per isolare l'ADC durante la trasmissione ad alta tensione.
-- **Sensori di Supporto**: Sensore di temperatura ad alta precisione (per la compensazione della velocità del suono) e sensore di pressione/profondità opzionale.
+Lo shield custom progettato in **KiCad 10** include:
+- **Catena RX (AFE)**: Switch T/R per la protezione, amplificatore a guadagno variabile lineare in dB **AD600JNZ** (alimentato in duale $\pm 5\text{V}$) controllato dal DAC della MCU per implementare il TVG (Time-Varied Gain), accoppiato all'ADC duale parallelo **AD9226** a 12-bit (campionato fino a 20 Msps per asse).
+- **Catena TX**: Segnale acustico a 1 MHz pilotato dal chip gate driver **MAX4427CPA+** (corrente di picco 1.5 A) per pilotare i MOSFET di potenza a commutazione rapida.
+- **Alimentazione**: Convertitore capacitivo **LTC1144** per la generazione della linea negativa a $-5\text{V}$ a partire dai $+5\text{V}$ stabili della scheda madre, con controllo di spegnimento software (SHDN) per risparmiare energia durante le pause tra i ping.
 
 ### 2. Meccanica (`/mechanics`)
-Sviluppata in **Autodesk Fusion 360**, garantisce l'operatività in ambiente marino profondo:
-- **Alloggiamento a Pressione**: Cilindro in alluminio anodizzato duro 6061-T6 o POM-C, calcolato per resistere a pressioni idrostatiche fino a 300m (30 bar) o superiori.
-- **Testata Trasduttori**: Flangia Janus a 4 fori orientati a 30 gradi rispetto all'asse centrale per ospitare i trasduttori acustici immersi in resina poliuretanica acusticamente trasparente.
-- **Sistemi di Tenuta**: Doppia scanalatura per O-Ring radiali e assiali calcolati secondo gli standard Parker.
+Sviluppata in **Autodesk Fusion 360**, garantisce l'operatività in ambiente marino:
+- **Alloggiamento a Pressione**: Cilindro stagno di precisione in POM-C o Alluminio anodizzato a spessore, calcolato per resistere alla pressione marina.
+- **Testata dei Trasduttori**: Alloggiamento inclinato a 30 gradi per ospitare i due trasduttori acustici da **1 MHz**, con colata di resina poliuretanica acusticamente trasparente per garantire la sigillatura e l'accoppiamento con l'acqua.
+- **Tenuta**: Doppia scanalatura per O-Ring radiali e assiali calcolati secondo gli standard industriali.
 
 ### 3. Firmware (`/firmware`)
 Scritto in C/C++ strutturato per **STM32H7**, implementa:
-- **Timing di Precisione**: Generazione di burst di trasmissione (CW o FM/Chirp) sincroni tramite timer avanzati (HRTIM / TIM1/TIM8).
-- **Campionamento DMA**: Acquisizione ADC multicanale parallela sincronizzata ad alta velocità gestita tramite DMA circolare per non sovraccaricare la CPU.
-- **Algoritmo DSP**:
-  - Trasformata Rapida di Fourier (FFT) per la stima del picco spettrale.
-  - Autocorrelazione o Cross-Correlazione del segnale ricevuto rispetto alla replica trasmessa per ottenere una risoluzione sub-binaria dello spostamento Doppler.
-- **Compensazione**: Ricalcolo in tempo reale della velocità del suono in acqua usando l'equazione di *Clay-Medwin* o *Del Grosso* in base a temperatura e salinità.
-- **Comunicazione**: Pacchetti dati in formato standard **NMEA** (es. `$VDVHW`, `$VDVWT`) e protocollo binario **PD0** per la massima compatibilità con i sistemi di navigazione ROS / ArduSub.
+- **Campionamento DMA Parallelo**: Acquisizione sincrona a 12-bit paralleli per i due canali AD9226 collegati alle porte GPIO D ed E, attivata da timer hardware e gestita tramite doppio canale DMA circolare.
+- **Elaborazione DSP**:
+  - Demodulazione digitale IQ a 1 MHz per portare il segnale acustico in banda base.
+  - Algoritmo di autocorrelazione spettrale (metodo di Rummler) per la stima immediata dello spostamento Doppler in frequenza.
+- **Compensazione & Navigazione**:
+  - Ricalcolo della velocità del suono nell'acqua basato sulla temperatura misurata (equazione di Clay-Medwin).
+  - Matrice Janus 2D per estrarre la velocità orizzontale di avanzamento (Vx) e la velocità verticale (Vz) a partire dagli scostamenti di frequenza misurati.
 
 ---
 
 ## 🚀 Come Iniziare
 
 ### 🛠️ Configurazione Ambiente di Sviluppo Firmware
-Il firmware è configurato per essere compilato tramite **CMake** e la toolchain **GCC ARM Embedded**.
+Il firmware si compila tramite **CMake** e la toolchain **GCC ARM Embedded**.
 
 1. **Requisiti**:
    - `arm-none-eabi-gcc` (Toolchain di compilazione)
    - `CMake` (versione >= 3.20)
    - `Ninja` o `Make`
-   - `openocd` o `ST-Link Utility` per il flashing
 
 2. **Compilazione**:
    ```bash
@@ -123,15 +121,14 @@ Il firmware è configurato per essere compilato tramite **CMake** e la toolchain
    ```
 
 ### ⚡ Apertura Schemi Elettronici (KiCad 10)
-1. Installa **KiCad 10** dal sito ufficiale.
-2. Apri KiCad e seleziona `File > Open Project`.
-3. Naviga in `electronics/OpenDVL_PCB/` e seleziona il file `.kicad_pro`.
+1. Apri KiCad 10 e seleziona `File > Open Project`.
+2. Seleziona il file `.kicad_pro` situato in `electronics/OpenDVL_PCB/`.
 
 ### 🔩 Importazione Modelli CAD (Fusion 360)
-1. Nella cartella `mechanics/exports/` trovi i file master in formato `.step` dell'intero assieme.
-2. Importa il file STEP all'interno del tuo workspace di Fusion 360 per visualizzare e modificare i componenti meccanici, lo spessore delle pareti e i dettagli di lavorazione al tornio/fresa CNC.
+1. I file CAD master in formato `.step` si trovano in `mechanics/exports/`.
+2. Importa il file nell'ambiente Fusion 360 per integrarlo nel design del tuo ROV/AUV.
 
 ---
 
 ## 📜 Licenza
-Questo progetto è rilasciato sotto licenza **MIT** (per il firmware) e **CERN OHL-W v2** (per l'hardware elettronico e meccanico). Consulta i file di licenza specifici nelle rispettive cartelle per maggiori dettagli.
+Rilasciato sotto licenza **MIT** (per il firmware) e **CERN OHL-W v2** (per l'hardware).

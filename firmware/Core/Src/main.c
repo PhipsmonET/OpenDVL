@@ -113,15 +113,32 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
 
-  /* Configure T/R Switch Pin (PB0) and PGA Chip Select Pins (PB1, PB2) */
-  HAL_GPIO_WritePin(GPIOB, TR_SWITCH_PIN|PGA_CS1_PIN|PGA_CS2_PIN, GPIO_PIN_RESET);
+  /* 1. LTC1144 Switched-Capacitor Inverter Control (PC4) */
+  /* Initialize LTC1144 SHDN Pin to LOW to keep the negative rail active by default */
+  HAL_GPIO_WritePin(LTC1144_SHDN_PORT, LTC1144_SHDN_PIN, GPIO_PIN_RESET);
 
-  GPIO_InitStruct.Pin = TR_SWITCH_PIN|PGA_CS1_PIN|PGA_CS2_PIN;
+  GPIO_InitStruct.Pin = LTC1144_SHDN_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(LTC1144_SHDN_PORT, &GPIO_InitStruct);
+
+  /* 2. MAX4427 Gate Driver PWM pins on GPIOE (PE9, PE11) as TIM1 Alternate Function */
+  GPIO_InitStruct.Pin = MAX4427_INA_PIN|MAX4427_INB_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /* 3. AD600 TVG DAC analog output pins on GPIOA (PA4, PA5) */
+  GPIO_InitStruct.Pin = TVG_DAC_CH1_PIN|TVG_DAC_CH2_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
 /**
