@@ -34,3 +34,27 @@ Il progetto si articola su tre pilastri ingegneristici principali, integrati in 
   * Compensazione in tempo reale della velocita del suono tramite equazione Clay-Medwin
   * Generazione di telemetria seriale in formato Waterlinked JSON nativo per ArduPilot
   * Sistema di sicurezza interno con arresto TX in caso di allarme leak detector (PC5)
+
+---
+
+## 🚀 Stato del Progetto & Milestone
+
+Il progetto OpenDVL segue uno sviluppo ingegneristico incrementale. Di seguito è riportato lo stato di avanzamento delle milestone hardware e software:
+
+### 🔌 Milestone Elettronica & Hardware (Shield KiCad 10)
+*   [x] **Setup Iniziale del Progetto KiCad 10:** Inizializzazione della struttura a fogli gerarchici dello shield.
+*   [x] **Integrazione del Footprint Madre Nucleo-144:** Installazione ed attivazione del footprint custom calibrato `ST_Morpho_Connector_144_STLink_MountingHoles` per garantire l'allineamento meccanico micrometrico ed innesto a sandwich a tolleranza zero con la scheda madre **NUCLEO-H723ZG**.
+*   [x] **Schema Foglio 1 (Alimentazione Duale) Completato:** Disegnato lo stadio di inversione di carica a condensatore fluttuante LTC1144CN8 con induttore di filtraggio passivo LC da $10\,\mu\text{H}$ per generare un ramo negativo pulito `AVEE` ($-5\text{V}$) e spegnimento controllato da MCU (`LTC1144_SHDN`).
+*   [ ] **Schema Foglio 2 (Acoustic TX):** Disegno dello stadio driver a capacità elevata MAX4427CPA+ per i trasduttori a 1 MHz. *(In corso)*
+*   [ ] **Schema Foglio 3 (AFE RX Analog Front-End):** Disegno del T/R Switch, LNA e stadio amplificatore AD600JNZ con rampa TVG e filtro passa-banda MFB a 1 MHz.
+*   [ ] **Schema Foglio 4 (MCU & ADC Interface):** Cablaggio dei connettori Morpho, alloggiamento ADC duale AD9226 ed allarmi Leak Detector.
+*   [ ] **Routing PCB & Stackup a 4 Strati:** Sbroglio tracce con length matching dei bus paralleli e piani di massa analogico/digitale isolati.
+
+### 💻 Milestone Firmware (STM32H7 - C/C++)
+*   [x] **Configurazione Clock & GPIO Base:** Inizializzazione MCU STM32H7 a 480 MHz e configurazione clock PLL/HSE.
+*   [ ] **Integrazione Driver HAL & CMSIS-DSP:** Configurazione ambiente di build CMake per la compilazione automatica.
+*   [ ] **Driver DMA Parallelo (RX):** Acquisizione sincrona da GPIOD/GPIOE tramite trigger hardware TIM2.
+*   [ ] **Algoritmo Doppler (Rummler / FFT):** Demodulazione IQ e stima dello sfasamento medio di frequenza.
+*   [ ] **Compensazione Sound Speed & Navigazione:** Calcolo velocità geometrica 2D ($V_x, V_z$) compensata in temperatura.
+*   [ ] **Telemetria Waterlinked JSON:** Confezionamento stringhe NMEA/JSON seriali per ArduPilot.
+

@@ -1,0 +1,209 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "d3bb5b5c-43f1-4db8-b118-2e0fad52f2b3")
+	(paper "A4")
+	(title_block
+		(title "OpenDVL 2D Janus DVL Shield")
+		(company "Open Source Doppler Velocity Log")
+		(comment 1 "Motherboard: STM32H7 Nucleo-144 (NUCLEO-H723ZG)")
+		(comment 2 "Acoustic Carrier: 1 MHz")
+		(comment 3 "ADC: Dual AD9226 12-Bit Parallel")
+	)
+	(lib_symbols)
+	(sheet
+		(at 30 40)
+		(size 50 30)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b3")
+		(property "Sheetname" "01_Power_Supply"
+			(at 30 38.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "01_Power_Supply.kicad_sch"
+			(at 30 71.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "OpenDVL_PCB"
+				(path "/d3bb5b5c-43f1-4db8-b118-2e0fad52f2b3"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 100 40)
+		(size 50 30)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b4")
+		(property "Sheetname" "02_Acoustic_TX"
+			(at 100 38.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "02_Acoustic_TX.kicad_sch"
+			(at 100 71.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "OpenDVL_PCB"
+				(path "/d3bb5b5c-43f1-4db8-b118-2e0fad52f2b3"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30 90)
+		(size 50 30)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b5")
+		(property "Sheetname" "03_Analog_Front_End_RX"
+			(at 30 88.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "03_Analog_Front_End_RX.kicad_sch"
+			(at 30 121.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "OpenDVL_PCB"
+				(path "/d3bb5b5c-43f1-4db8-b118-2e0fad52f2b3"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 100 90)
+		(size 50 30)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b6")
+		(property "Sheetname" "04_MCU_ADC_Interface"
+			(at 100 88.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "04_MCU_ADC_Interface.kicad_sch"
+			(at 100 121.5 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "OpenDVL_PCB"
+				(path "/d3bb5b5c-43f1-4db8-b118-2e0fad52f2b3"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

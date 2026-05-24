@@ -1,0 +1,14 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b5")
+	(paper "A4")
+	(title_block
+		(title "OpenDVL: Analog Front-End (AFE RX)")
+		(company "Open Source Doppler Velocity Log")
+		(comment 1 "TR Switch, LNA (+20dB), AD600JNZ Variable Gain Amplifier")
+		(comment 2 "Active Multiple Feedback (MFB) Bandpass Filter at 1 MHz")
+	)
+	(lib_symbols)
+)

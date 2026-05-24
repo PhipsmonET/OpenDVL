@@ -1,0 +1,101 @@
+
+(kicad_symbol_lib (version 20211014) (generator kicad_symbol_editor)
+  (symbol "LTC1144CN8_PBF" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+    (property "Reference" "U" (id 0) (at 18.1356 9.1186 0.0)
+      (effects (font (size 1.27 1.27)) (justify bottom left))
+    )
+    (property "Value" "LTC1144CN8_PBF" (id 1) (at 17.5006 6.5786 0.0)
+      (effects (font (size 1.27 1.27)) (justify bottom left))
+    )
+    (property "Footprint" "LTC1144CN8_PBF:PDIP-8_N" (id 2) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "VENDOR" "Linear Technology" (id 4) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "COPYRIGHT" "Copyright C 2016 Accelerated Designs. All rights reserved" (id 5) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "MANUFACTURER_PART_NUMBER" "ltc1144cn8" (id 6) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (symbol "LTC1144CN8_PBF_0_0"
+      (polyline
+        (pts (xy 7.62 5.08) (xy 7.62 -12.7)) (stroke (width 0.1524))
+      )
+      (polyline
+        (pts (xy 7.62 -12.7) (xy 38.1 -12.7)) (stroke (width 0.1524))
+      )
+      (polyline
+        (pts (xy 38.1 -12.7) (xy 38.1 5.08)) (stroke (width 0.1524))
+      )
+      (polyline
+        (pts (xy 38.1 5.08) (xy 7.62 5.08)) (stroke (width 0.1524))
+      )
+      (pin passive line (at 0.0 0.0 0) (length 7.62)
+        (name "BOOST"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "1"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin passive line (at 0.0 -2.54 0) (length 7.62)
+        (name "CAP+"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "2"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin power_in line (at 0.0 -5.08 0) (length 7.62)
+        (name "GND"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "3"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin passive line (at 0.0 -7.62 0) (length 7.62)
+        (name "CAP-"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "4"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin output line (at 45.72 -7.62 180.0) (length 7.62)
+        (name "VOUT"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "5"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin passive line (at 45.72 -5.08 180.0) (length 7.62)
+        (name "*SHDN"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "6"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin passive line (at 45.72 -2.54 180.0) (length 7.62)
+        (name "OSC"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "7"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin power_in line (at 45.72 0.0 180.0) (length 7.62)
+        (name "V+"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "8"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+    )
+  )
+)

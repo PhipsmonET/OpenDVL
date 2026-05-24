@@ -1,0 +1,14 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "e16a24cd-7be9-4c8d-8a21-729fad52f2b4")
+	(paper "A4")
+	(title_block
+		(title "OpenDVL: Acoustic Transmitter (TX - 1 MHz)")
+		(company "Open Source Doppler Velocity Log")
+		(comment 1 "Gate driver MAX4427CPA+ for high capacitive load (1200 pF)")
+		(comment 2 "Includes DC blocking capacitors and series damping resistors")
+	)
+	(lib_symbols)
+)
