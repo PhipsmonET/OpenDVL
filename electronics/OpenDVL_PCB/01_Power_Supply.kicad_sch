@@ -1259,7 +1259,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 93.98) (xy 179.07 93.98)
+			(xy 201.93 93.98) (xy 179.07 93.98)
 		)
 		(stroke
 			(width 0)
@@ -1279,13 +1279,23 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 77.47) (xy 114.3 77.47)
+			(xy 116.84 90.17) (xy 116.84 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "305a84a4-cd79-4a94-b5a1-b8e30d5299c2")
+		(uuid "2636e7fa-8ea6-42e0-acda-d62700367706")
+	)
+	(wire
+		(pts
+			(xy 201.93 110.49) (xy 201.93 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d75c31a-3c2c-4335-8a01-7f354830e520")
 	)
 	(wire
 		(pts
@@ -1319,16 +1329,6 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 96.52) (xy 114.3 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "53195974-2c63-4b25-9bc5-078deda665b0")
-	)
-	(wire
-		(pts
 			(xy 166.37 96.52) (xy 176.53 96.52)
 		)
 		(stroke
@@ -1336,16 +1336,6 @@
 			(type default)
 		)
 		(uuid "5988ec05-042f-4c1f-a3bf-f09862919065")
-	)
-	(wire
-		(pts
-			(xy 102.87 97.79) (xy 102.87 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b758b1a-75dc-4234-8a3b-e9fcf0914409")
 	)
 	(wire
 		(pts
@@ -1389,16 +1379,6 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 109.22) (xy 114.3 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "78d66037-2282-4208-9206-fb77e3c69d18")
-	)
-	(wire
-		(pts
 			(xy 166.37 115.57) (xy 166.37 109.22)
 		)
 		(stroke
@@ -1409,7 +1389,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 93.98) (xy 195.58 95.25)
+			(xy 201.93 93.98) (xy 201.93 99.06)
 		)
 		(stroke
 			(width 0)
@@ -1426,16 +1406,6 @@
 			(type default)
 		)
 		(uuid "8b2c7865-e3b8-49ef-8f9e-5ce7dbb42663")
-	)
-	(wire
-		(pts
-			(xy 114.3 91.44) (xy 114.3 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8eb50469-36bc-4b9f-bfe0-973ac6302c6d")
 	)
 	(wire
 		(pts
@@ -1459,7 +1429,7 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 93.98) (xy 109.22 95.25)
+			(xy 109.22 93.98) (xy 109.22 102.87)
 		)
 		(stroke
 			(width 0)
@@ -1499,7 +1469,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 96.52) (xy 114.3 96.52)
+			(xy 116.84 97.79) (xy 105.41 97.79)
 		)
 		(stroke
 			(width 0)
@@ -1519,13 +1489,23 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 91.44) (xy 114.3 91.44)
+			(xy 116.84 90.17) (xy 105.41 90.17)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "df250e63-4c88-4fd2-958d-a6f18777e216")
+	)
+	(wire
+		(pts
+			(xy 116.84 97.79) (xy 116.84 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df26b348-364c-42ca-b303-1796733500c8")
 	)
 	(wire
 		(pts
@@ -1549,16 +1529,6 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 90.17) (xy 102.87 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ede27944-55d1-4c71-91a0-543235f65e37")
-	)
-	(wire
-		(pts
 			(xy 166.37 101.6) (xy 166.37 96.52)
 		)
 		(stroke
@@ -1578,12 +1548,12 @@
 		(uuid "0837b2d5-7985-4cc7-bc35-6807c1b8e599")
 	)
 	(label "LTC1144_SHDN"
-		(at 195.58 93.98 0)
+		(at 201.93 93.98 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9c33dba8-2d4e-42b9-be37-85a49eb1cbad")
 	)
@@ -2044,7 +2014,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 99.06 180)
+		(at 201.93 102.87 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2054,7 +2024,7 @@
 		(dnp no)
 		(uuid "8352a720-3a94-47dd-b793-d2b3459f6616")
 		(property "Reference" "R102"
-			(at 198.628 98.806 90)
+			(at 204.978 102.616 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2064,7 +2034,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 193.04 99.314 90)
+			(at 199.39 103.124 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2074,7 +2044,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 197.358 99.06 90)
+			(at 203.708 102.87 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2085,7 +2055,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 195.58 99.06 0)
+			(at 201.93 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2096,7 +2066,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 195.58 99.06 0)
+			(at 201.93 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2123,7 +2093,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDA")
-		(at 109.22 95.25 0)
+		(at 109.22 102.87 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2134,7 +2104,7 @@
 		(fields_autoplaced yes)
 		(uuid "98760317-d64c-4218-ac46-294f6189ec09")
 		(property "Reference" "#PWR03"
-			(at 109.22 101.6 0)
+			(at 109.22 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2145,7 +2115,7 @@
 			)
 		)
 		(property "Value" "GNDA"
-			(at 109.22 100.33 0)
+			(at 109.22 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2155,7 +2125,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 109.22 95.25 0)
+			(at 109.22 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2166,7 +2136,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 109.22 95.25 0)
+			(at 109.22 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2177,7 +2147,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDA\" , analog ground"
-			(at 109.22 95.25 0)
+			(at 109.22 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2282,7 +2252,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 102.87 93.98 0)
+		(at 105.41 93.98 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2292,7 +2262,7 @@
 		(dnp no)
 		(uuid "b754aaa9-f93a-43f6-bc0d-bf552ea312ce")
 		(property "Reference" "C101"
-			(at 95.25 92.964 0)
+			(at 97.79 92.964 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2303,7 +2273,7 @@
 			)
 		)
 		(property "Value" "10uf MLCC 50v"
-			(at 85.09 96.266 0)
+			(at 87.63 96.266 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2314,7 +2284,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 103.8352 97.79 0)
+			(at 106.3752 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2325,7 +2295,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 102.87 93.98 0)
+			(at 105.41 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2336,7 +2306,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 102.87 93.98 0)
+			(at 105.41 93.98 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2679,7 +2649,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDA")
-		(at 195.58 102.87 0)
+		(at 201.93 110.49 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2690,7 +2660,7 @@
 		(fields_autoplaced yes)
 		(uuid "fdd48783-b2be-4dee-95ab-e9c5e2f62d8f")
 		(property "Reference" "#PWR05"
-			(at 195.58 109.22 0)
+			(at 201.93 116.84 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2701,7 +2671,7 @@
 			)
 		)
 		(property "Value" "GNDA"
-			(at 195.58 107.95 0)
+			(at 201.93 115.57 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2711,7 +2681,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 195.58 102.87 0)
+			(at 201.93 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2722,7 +2692,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 195.58 102.87 0)
+			(at 201.93 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2733,7 +2703,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDA\" , analog ground"
-			(at 195.58 102.87 0)
+			(at 201.93 110.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
